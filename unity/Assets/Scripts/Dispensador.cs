@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Dispensador : MonoBehaviour
@@ -5,10 +6,16 @@ public class Dispensador : MonoBehaviour
     Input_Gameobject spawnedInput;
     [SerializeField] GameObject prefab_InputToSpawn;
     [SerializeField] Transform spawningPosition;
+    [SerializeField] bool startHidden = false;
+    [SerializeField] AudioSource sfx_spawnInput, sfx_unhiden;
+    Animator _animator;
     private void Awake()
     {
         GameController.instance.OnPlacedInput += OnPlacedInput;
-        spawnNewInput();
+        _animator = GetComponent<Animator>();
+        if (startHidden) { _animator.SetBool("hidden", true); }
+        else { spawnNewInput(); }
+        
     }
 
     void OnPlacedInput(Input_Gameobject eatenInput)
@@ -25,10 +32,31 @@ public class Dispensador : MonoBehaviour
             spawnNewInput();
         }
     }
+    public void unhideDispenser()
+    {
+        _animator.SetBool("hidden", false);
+        StartCoroutine(delayedSpawn());
+        sfx_unhiden.Play();
+
+        IEnumerator delayedSpawn()
+        {
+            yield return new WaitForSeconds(1.5f);
+            spawnNewInput();
+        }
+    }
+    public void hideDispenser()
+    {
+        sfx_unhiden.Play();
+        _animator.SetBool("hidden", true);
+        Destroy(spawnedInput);
+    }
     public void spawnNewInput()
     {
+        if (_animator.GetBool("hidden")) { return; }
+        sfx_spawnInput.Play();
         GameObject newInput = Instantiate(prefab_InputToSpawn, spawningPosition.position, Quaternion.identity);
         spawnedInput = newInput.GetComponent<Input_Gameobject>();
         spawnedInput.dispensador = this;
+        _animator.SetTrigger("spawn");
     }
 }

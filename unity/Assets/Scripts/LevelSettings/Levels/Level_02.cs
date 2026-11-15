@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Level/02", fileName = "Level_02")]
+[CreateAssetMenu(menuName = "Level/NoRepeat", fileName = "Level_NoRepeat")]
 public class Level_02 : LevelSettings_SO
 {
     GameController.InputKind lastInput = GameController.InputKind.Input_C;

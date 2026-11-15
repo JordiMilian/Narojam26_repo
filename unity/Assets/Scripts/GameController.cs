@@ -35,8 +35,14 @@ public class GameController : MonoBehaviour
     public UnityAction<Input_Gameobject> OnPlacedInput;
 
     int _currentMigajas;
-    [SerializeField] TextMeshProUGUI tmp_currentMigajas;
+    [SerializeField] TextMesh tmp_currentMigajas;
     [SerializeField] GoalMeter_Controller goalMeter;
+    [SerializeField] Dispensador thirdDispensador;
+    [SerializeField] BoxMouth_Controller boxMouth;
+    [SerializeField] SpriteRenderer boxOutputSriteRenderer;
+    [SerializeField] Sprite sprite_outputA, sprite_outputB;
+    [SerializeField] GameObject GO_boxOutputA, GO_boxOutputB;
+    [SerializeField] AudioSource sfx_victoryFinal, sfx_derrotaFinal;
 
     [SerializeField] float vibrationDuration = 8;
     public int CurrentMigajas
@@ -75,38 +81,120 @@ public class GameController : MonoBehaviour
         apostador_A.UpdateUI();
         apostador_B.UpdateUI();
 
+        if (lvl.thirdInput) { thirdDispensador.unhideDispenser(); }
+        else { thirdDispensador.hideDispenser(); }
+
     }
 
     //esto sera un ienumerator?
+    OutputKind lastOutput;
     public void PlaceInput(Input_Gameobject input)
     {
-        OutputKind output = CurrentLevel.GetOutput(input.inputKind);
-        Debug.Log("OUTPUT: " + output);
+        CurrentMigajas--;
+        lastOutput = CurrentLevel.GetOutput(input.inputKind);
+        Debug.Log("OUTPUT: " + lastOutput);
         OnPlacedInput.Invoke(input);
-        //instanciar output
-        //animaciones UI victoria
+        enabled = false;
+        apostador_A.isDisabled = true;
+        apostador_B.isDisabled = true;
+        boxMouth.DisableTrigger();
 
-        GameObject PrefabToSpawn = null;
-        if (output == OutputKind.Output_A) { apostador_A.OnWonBet(); apostador_B.OnLostBet(); PrefabToSpawn = Prefab_OutputA; }
-        if (output == OutputKind.Output_B) { apostador_B.OnWonBet(); apostador_A.OnLostBet(); PrefabToSpawn = Prefab_OutputB; }
+        if (lastOutput == OutputKind.Output_A) 
+        {
+            //boxOutputSriteRenderer.sprite = sprite_outputA;
+            GO_boxOutputB.SetActive(false);
+            GO_boxOutputA.SetActive(true);
+        }
+        if (lastOutput == OutputKind.Output_B)
+        {
+            //boxOutputSriteRenderer.sprite = sprite_outputB;
+            GO_boxOutputB.SetActive(true);
+            GO_boxOutputA.SetActive(false);
+        }
 
-        GameObject newPrefab = Instantiate(PrefabToSpawn, transform.position, Quaternion.identity);
-        Destroy(newPrefab, 2);
-
+        boxMouth.TriggerEat();
 
         //aninimar UI contador migajar?
+
+      
+    }
+    int moneyAfterLastBet = 0;
+    public bool lostLastBet = true;
+    public void OnOutputReveal()
+    {
+        if(lastOutput == OutputKind.Output_A)
+        {
+            apostador_A.OnWonBet();
+            apostador_B.OnLostBet();
+        }
+        else
+        {
+            apostador_B.OnWonBet();
+            apostador_A.OnLostBet();
+        }
+        if(CurrentMigajas >= moneyAfterLastBet) { lostLastBet = false; }
+        else { lostLastBet = true; }
+        moneyAfterLastBet = CurrentMigajas;
 
         if (CurrentMigajas >= CurrentLevel.migajas_goal)
         {
             StartCoroutine(C_WonBoxCorroutine());
         }
-        IEnumerator C_WonBoxCorroutine()
+        else if (CurrentMigajas <= 0)
         {
-            yield return new WaitForSeconds(1);
-            DOTween.To(() => goalMeter.goalScale, x => goalMeter.goalScale = x, goalMeter.maxScale, vibrationDuration);
-            goalMeter.transform.DOShakePosition(vibrationDuration, 0.1f,20);
-            yield return new WaitForSeconds(vibrationDuration + 3);
-            LoadNewLevel();
+            StartCoroutine(C_LostBoxCorroutine());
         }
+        else
+        {
+            StartCoroutine(enableWithDelay());
+        }
+        IEnumerator enableWithDelay()
+        {
+            yield return new WaitForSeconds(2.75f);
+            apostador_A.isDisabled = false;
+            apostador_B.isDisabled = false;
+            boxMouth.EnableTrigger();
+        }
+    }
+    IEnumerator C_LostBoxCorroutine()
+    {
+        apostador_A.isDisabled = true;
+        apostador_B.isDisabled = true;
+
+        yield return new WaitForSeconds(1);
+        sfx_derrotaFinal.Play();
+        goalMeter.transform.DOShakePosition(2, 0.1f, 20);
+        yield return new WaitForSeconds(3);
+        boxMouth.TriggerRestartBox();
+        yield return new WaitForSeconds(3);
+
+        LoadLevel(CurrentLevel);
+
+        apostador_A.isDisabled = false;
+        apostador_B.isDisabled = false;
+        boxMouth.EnableTrigger();
+    }
+
+    IEnumerator C_WonBoxCorroutine()
+    {
+
+        yield return new WaitForSeconds(1);
+        sfx_victoryFinal.Play();
+        DOTween.To(() => goalMeter.goalScale, x => goalMeter.goalScale = x, goalMeter.maxScale, vibrationDuration);
+        goalMeter.transform.DOShakePosition(vibrationDuration, 0.1f, 20);
+        yield return new WaitForSeconds(vibrationDuration + 2);
+        if (currentLevelIndex == levelsList.Count - 1)
+        {
+            boxMouth.TriggerEnding();
+            yield break;
+        }
+        boxMouth.TriggerNextBox();
+        yield return new WaitForSeconds(2);
+
+       
+        LoadNewLevel();
+        apostador_A.isDisabled = false;
+        apostador_B.isDisabled = false;
+        boxMouth.EnableTrigger();
     }
 }

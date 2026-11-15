@@ -8,4 +8,5 @@ public abstract class LevelSettings_SO : ScriptableObject
     public int migajas_iniciales;
     public int migajas_maxBet;
     public bool instantRespawn;
+    public bool thirdInput = false;
 }

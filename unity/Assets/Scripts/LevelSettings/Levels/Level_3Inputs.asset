@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f3f2eea294a2ff46b95e0cb515e36bb, type: 3}
+  m_Name: Level_3Inputs
+  m_EditorClassIdentifier: Assembly-CSharp::Level_3Inputs
+  migajas_goal: 20
+  migajas_iniciales: 10
+  migajas_maxBet: 5
+  instantRespawn: 0
+  thirdInput: 0
