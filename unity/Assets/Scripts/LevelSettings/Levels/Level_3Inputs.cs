@@ -7,8 +7,8 @@ public class Level_3Inputs : LevelSettings_SO
     public override GameController.OutputKind GetOutput(GameController.InputKind input)
     {
         if(input == GameController.InputKind.Input_C) { return lastOutput; }
-        if(input == GameController.InputKind.Input_A) { return GameController.OutputKind.Output_A; }
-        if(input == GameController.InputKind.Input_B) { return GameController.OutputKind.Output_B; }
+        if(input == GameController.InputKind.Input_A) { lastOutput = GameController.OutputKind.Output_A; return GameController.OutputKind.Output_A; }
+        if(input == GameController.InputKind.Input_B) { lastOutput = GameController.OutputKind.Output_B; return GameController.OutputKind.Output_B; }
         return GameController.OutputKind.Output_B;
     }
 }

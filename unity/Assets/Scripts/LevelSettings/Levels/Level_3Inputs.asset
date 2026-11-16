@@ -16,4 +16,4 @@ MonoBehaviour:
   migajas_iniciales: 10
   migajas_maxBet: 5
   instantRespawn: 0
-  thirdInput: 0
+  thirdInput: 1

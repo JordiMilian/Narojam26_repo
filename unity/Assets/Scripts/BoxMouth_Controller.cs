@@ -10,6 +10,7 @@ public class BoxMouth_Controller : MonoBehaviour
     Animator _animator;
     bool enabledT = true;
     [SerializeField] ending endScreen;
+    [SerializeField] AudioSource sfx_eat, sfx_nextLevel;
     private void Awake()
     {
         GameController.instance.pointerPosAction.action.performed += CheckIfOverMouth;
@@ -31,6 +32,7 @@ public class BoxMouth_Controller : MonoBehaviour
     public void TriggerNextBox()
     {
         _animator.SetTrigger("next");
+        sfx_nextLevel.Play();
     }
     public void TriggerRestartBox()
     {
@@ -39,6 +41,7 @@ public class BoxMouth_Controller : MonoBehaviour
     public void TriggerEat()
     {
         _animator.SetTrigger("eat");
+        sfx_eat.Play();
     }
     public void TriggerEnding()
     {

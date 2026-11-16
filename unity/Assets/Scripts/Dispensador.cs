@@ -14,7 +14,7 @@ public class Dispensador : MonoBehaviour
         GameController.instance.OnPlacedInput += OnPlacedInput;
         _animator = GetComponent<Animator>();
         if (startHidden) { _animator.SetBool("hidden", true); }
-        else { spawnNewInput(); }
+        else { spawnNewInput(false); }
         
     }
 
@@ -46,14 +46,14 @@ public class Dispensador : MonoBehaviour
     }
     public void hideDispenser()
     {
-        sfx_unhiden.Play();
+        //sfx_unhiden.Play();
         _animator.SetBool("hidden", true);
         Destroy(spawnedInput);
     }
-    public void spawnNewInput()
+    public void spawnNewInput(bool withSFX = true)
     {
         if (_animator.GetBool("hidden")) { return; }
-        sfx_spawnInput.Play();
+        if (withSFX) { sfx_spawnInput.Play(); }
         GameObject newInput = Instantiate(prefab_InputToSpawn, spawningPosition.position, Quaternion.identity);
         spawnedInput = newInput.GetComponent<Input_Gameobject>();
         spawnedInput.dispensador = this;

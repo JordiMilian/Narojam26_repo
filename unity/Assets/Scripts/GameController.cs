@@ -42,8 +42,7 @@ public class GameController : MonoBehaviour
     [SerializeField] SpriteRenderer boxOutputSriteRenderer;
     [SerializeField] Sprite sprite_outputA, sprite_outputB;
     [SerializeField] GameObject GO_boxOutputA, GO_boxOutputB;
-    [SerializeField] AudioSource sfx_victoryFinal, sfx_derrotaFinal;
-
+    [SerializeField] AudioSource sfx_victoryFinal, sfx_derrotaFinal, sfx_winTirada, sfx_loadedNewSettings, sfx_lostTirada;
     [SerializeField] float vibrationDuration = 8;
     public int CurrentMigajas
     {
@@ -73,6 +72,7 @@ public class GameController : MonoBehaviour
     }
     void LoadLevel(LevelSettings_SO lvl)
     {
+        sfx_loadedNewSettings.Play();
         CurrentMigajas = lvl.migajas_iniciales;
         apostador_A.maxBet = lvl.migajas_maxBet;
         apostador_B.maxBet = lvl.migajas_maxBet;
@@ -136,6 +136,9 @@ public class GameController : MonoBehaviour
         else { lostLastBet = true; }
         moneyAfterLastBet = CurrentMigajas;
 
+        if (!lostLastBet) { sfx_winTirada.Play(); }
+        else { sfx_lostTirada.Play(); }
+
         if (CurrentMigajas >= CurrentLevel.migajas_goal)
         {
             StartCoroutine(C_WonBoxCorroutine());
@@ -163,7 +166,7 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds(1);
         sfx_derrotaFinal.Play();
-        goalMeter.transform.DOShakePosition(2, 0.1f, 20);
+        goalMeter.transform.DOShakePosition(3, 0.1f, 20);
         yield return new WaitForSeconds(3);
         boxMouth.TriggerRestartBox();
         yield return new WaitForSeconds(3);
@@ -182,9 +185,10 @@ public class GameController : MonoBehaviour
         sfx_victoryFinal.Play();
         DOTween.To(() => goalMeter.goalScale, x => goalMeter.goalScale = x, goalMeter.maxScale, vibrationDuration);
         goalMeter.transform.DOShakePosition(vibrationDuration, 0.1f, 20);
-        yield return new WaitForSeconds(vibrationDuration + 2);
+        yield return new WaitForSeconds(vibrationDuration + 0.5f);
         if (currentLevelIndex == levelsList.Count - 1)
         {
+            yield return new WaitForSeconds(1.5f);
             boxMouth.TriggerEnding();
             yield break;
         }

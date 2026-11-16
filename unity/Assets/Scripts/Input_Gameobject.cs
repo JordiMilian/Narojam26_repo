@@ -13,6 +13,7 @@ public class Input_Gameobject : MonoBehaviour, IPointerEnterHandler, IPointerExi
     bool isDragging = false;
     bool isOverhead = false;
     [HideInInspector] public Dispensador dispensador;
+    [SerializeField] AudioSource sfx_PickUp;
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -36,7 +37,7 @@ public class Input_Gameobject : MonoBehaviour, IPointerEnterHandler, IPointerExi
             Vector3 screenPos = new Vector3(
                 pointerPos.x,
                 pointerPos.y,
-                10f
+                30f
             );
 
             transform.position = Camera.main.ScreenToWorldPoint(screenPos);
@@ -46,7 +47,8 @@ public class Input_Gameobject : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public void OnClickDown(InputAction.CallbackContext ctx)
     {
         if (isOverhead) 
-        { 
+        {
+            sfx_PickUp.Play();
             isDragging = true;
             _rb.angularVelocity = 0;
             _rb.linearVelocity = Vector2.zero; 
