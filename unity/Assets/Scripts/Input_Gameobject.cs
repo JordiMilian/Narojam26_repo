@@ -10,21 +10,18 @@ public class Input_Gameobject : MonoBehaviour, IPointerEnterHandler, IPointerExi
    
     public  GameController.InputKind inputKind;
     Rigidbody2D _rb;
-    bool isDragging = false;
-    bool isOverhead = false;
+   [SerializeField] bool isDragging = false;
+    [SerializeField] bool isOverhead = false;
     [HideInInspector] public Dispensador dispensador;
     [SerializeField] AudioSource sfx_PickUp;
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
-        GameController.instance.clickAction.action.started += OnClickDown;
-        GameController.instance.clickAction.action.canceled += OnClickUp;
         GameController.instance.pointerPosAction.action.performed += OnPointMoved;
     }
     private void OnDisable()
     {
-        GameController.instance.clickAction.action.started -= OnClickDown;
-        GameController.instance.clickAction.action.canceled -= OnClickUp;
+
         GameController.instance.pointerPosAction.action.performed -= OnPointMoved;
         isDragging = false;
     }
@@ -43,9 +40,40 @@ public class Input_Gameobject : MonoBehaviour, IPointerEnterHandler, IPointerExi
             transform.position = Camera.main.ScreenToWorldPoint(screenPos);
         }
     }
-      
-    public void OnClickDown(InputAction.CallbackContext ctx)
+
+    private void Update()
     {
+        if (Touchscreen.current != null)
+        {
+            var touch = Touchscreen.current.primaryTouch;
+
+            if (touch.press.wasPressedThisFrame)
+            { OnClickDown(); }
+
+            if (touch.press.wasReleasedThisFrame)
+            {  OnClickUp(); }
+        }
+           
+
+        if (Mouse.current != null)
+        {
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                OnClickDown();
+            }
+            if (Mouse.current.leftButton.wasReleasedThisFrame)
+            {
+                OnClickUp();
+            }
+        }
+           
+
+    }
+
+    public void OnClickDown()
+    {
+
+        Debug.Log("clicked down");
         if (isOverhead) 
         {
             sfx_PickUp.Play();
@@ -55,9 +83,9 @@ public class Input_Gameobject : MonoBehaviour, IPointerEnterHandler, IPointerExi
             _rb.gravityScale = 0; 
         }
     }
-    public void OnClickUp(InputAction.CallbackContext ctx)
+    public void OnClickUp()
     {
-        
+        Debug.Log("clicked up");
         if (GameController.instance.isOverMouth && isDragging)
         {
             Debug.Log("yo soy" + inputKind);

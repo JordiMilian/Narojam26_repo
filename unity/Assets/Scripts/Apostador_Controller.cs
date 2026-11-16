@@ -19,7 +19,6 @@ public class Apostador_Controller : MonoBehaviour, IPointerEnterHandler, IPointe
     [SerializeField] AudioSource button_true, button_fail;
     private void Awake()
     {
-        GameController.instance.clickAction.action.started += OnPointerDown;
         _animator = GetComponent<Animator>();
     }
     public void OnPointerEnter(PointerEventData eventData)
@@ -31,7 +30,7 @@ public class Apostador_Controller : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         isOverhead = false;
     }
-    public void OnPointerDown(InputAction.CallbackContext ctx)
+    public void OnPointerDown()
     {
         if (isOverhead)
         {
@@ -95,6 +94,22 @@ public class Apostador_Controller : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         float lerpedvalue = Mathf.Lerp(blackSquare.transform.localScale.y, goalValue, 0.1f);
         blackSquare.transform.localScale = new Vector3(blackSquare.transform.localScale.x, lerpedvalue, 1);
+
+        if(Mouse.current != null)
+        {
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                OnPointerDown();
+            }
+        }
+        if (Touchscreen.current != null)
+        {
+            var touch = Touchscreen.current.primaryTouch;
+
+            if (touch.press.wasPressedThisFrame)
+            { OnPointerDown(); }
+
+        }
     }
     public IEnumerator C_winBetCoroutine()
     {
